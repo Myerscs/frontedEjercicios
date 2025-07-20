@@ -1,13 +1,81 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>dashboard</ion-title>
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Mi Fitness</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/profile">
+        <ion-icon slot="icon-only" name="person-circle"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">dashboard</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding" [fullscreen]="true">
+  <!-- Sección de Bienvenida -->
+  <div class="welcome-section">
+    <div>
+      <h1>Hola, {{userName}}!</h1>
+      <p class="text-muted">{{currentDate}} • {{currentLocation}}</p>
+    </div>
+    <ion-badge color="warning">
+      <ion-icon name="partly-sunny"></ion-icon>
+      {{weather | titlecase}}
+    </ion-badge>
+  </div>
+
+  <!-- Resumen Rápido -->
+  <ion-grid class="quick-stats">
+    <ion-row>
+      <ion-col size="6" *ngFor="let stat of [
+        { icon: 'walk', label: 'Entrenos', value: stats.workoutsThisWeek, unit: 'esta semana' },
+        { icon: 'barbell', label: 'Distancia', value: stats.totalDistance, unit: 'km totales' },
+        { icon: 'flame', label: 'Calorías', value: stats.caloriesBurned, unit: 'quemadas' },
+        { icon: 'time', label: 'Actividad', value: stats.activeMinutes, unit: 'minutos' }
+      ]">
+        <div class="stat-card">
+          <ion-icon [name]="stat.icon" color="primary"></ion-icon>
+          <h2>{{stat.value}}</h2>
+          <p>{{stat.label}} <span>{{stat.unit}}</span></p>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <!-- Gráfico de Progreso -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Tu actividad esta semana</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <canvas id="progressChart"></canvas>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Distribución de entrenos -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Distribución de entrenos</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <div style="height: 250px">
+        <canvas id="workoutChart"></canvas>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Acciones rápidas -->
+  <ion-grid class="quick-actions">
+    <ion-row>
+      <ion-col size="6" *ngFor="let action of [
+        { icon: 'add-circle', label: 'Nuevo Entreno', color: 'primary', route: '/routes' },
+        { icon: 'trophy', label: 'Logros', color: 'success', route: '/achievements' },
+        { icon: 'stats-chart', label: 'Progreso', color: 'warning', route: '/progress' },
+        { icon: 'people', label: 'Comunidad', color: 'tertiary', route: '/community' }
+      ]">
+        <ion-button [routerLink]="action.route" expand="block" [color]="action.color" class="action-button">
+          <ion-icon slot="start" [name]="action.icon"></ion-icon>
+          {{action.label}}
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>
