@@ -1,0 +1,170 @@
+.controls-panel {
+  padding: 16px;
+  background: var(--ion-background-color);
+}
+
+.create-route-panel {
+  margin-bottom: 16px;
+  
+  .route-info {
+    margin: 16px 0;
+    padding: 12px;
+    background: var(--ion-color-light);
+    border-radius: 8px;
+    
+    p {
+      margin: 4px 0;
+      color: var(--ion-color-medium);
+    }
+  }
+  
+  .button-group {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+}
+
+.routes-list {
+  ion-segment {
+    margin-bottom: 16px;
+  }
+  
+  .route-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    .route-info {
+      flex: 1;
+      
+      h3 {
+        margin: 0 0 4px 0;
+        font-weight: 600;
+        color: var(--ion-color-primary);
+      }
+      
+      p {
+        margin: 0;
+        color: var(--ion-color-medium);
+        font-size: 14px;
+      }
+    }
+    
+    .route-actions {
+      display: flex;
+      gap: 4px;
+    }
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--ion-color-medium);
+    
+    ion-icon {
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+    
+    h3 {
+      margin: 0 0 8px 0;
+      color: var(--ion-color-dark);
+    }
+    
+    p {
+      margin: 0;
+      font-size: 14px;
+    }
+  }
+}
+
+// Timer modal styles
+.timer-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  
+  .timer-display {
+    padding: 20px;
+    
+    h1 {
+      font-size: 3rem;
+      font-weight: bold;
+      color: var(--ion-color-primary);
+      margin: 0 0 16px 0;
+      font-family: 'Courier New', monospace;
+    }
+    
+    p {
+      font-size: 1.2rem;
+      color: var(--ion-color-medium);
+      margin: 0 0 32px 0;
+    }
+    
+    .timer-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      
+      ion-button {
+        width: 100%;
+        height: 48px;
+      }
+    }
+  }
+}
+
+// Map container
+#map {
+  border-radius: 0 0 16px 16px;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .create-route-panel {
+    .button-group {
+      flex-direction: column;
+      
+      ion-button {
+        margin: 4px 0;
+      }
+    }
+  }
+  
+  .route-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    
+    .route-actions {
+      width: 100%;
+      justify-content: space-around;
+    }
+  }
+  
+  .timer-content {
+    .timer-display {
+      padding: 16px;
+      
+      h1 {
+        font-size: 2.5rem;
+      }
+    }
+  }
+}
+
+// Custom styling for mapbox controls
+.mapboxgl-ctrl-group {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+}
+
+// Animation for route cards
+ion-card {
+  transition: transform 0.2s ease-in-out;
+  
+  &:hover {
+    transform: translateY(-2px);
+  }
+}

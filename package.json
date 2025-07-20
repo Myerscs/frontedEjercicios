@@ -32,6 +32,8 @@
     "chart.js": "^4.5.0",
     "firebase": "^11.10.0",
     "ionicons": "^7.0.0",
+    "leaflet": "^1.9.4",
+    "mapbox-gl": "^3.13.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
@@ -49,6 +51,8 @@
     "@capacitor/cli": "7.4.2",
     "@ionic/angular-toolkit": "^12.0.0",
     "@types/jasmine": "~5.1.0",
+    "@types/leaflet": "^1.9.20",
+    "@types/mapbox-gl": "^3.4.1",
     "@typescript-eslint/eslint-plugin": "^8.18.0",
     "@typescript-eslint/parser": "^8.18.0",
     "eslint": "^9.16.0",
