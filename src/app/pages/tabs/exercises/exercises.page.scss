@@ -1,0 +1,35 @@
+ion-content {
+  --background: #f5f5f5;
+}
+
+ion-item {
+  --background: white;
+  margin-bottom: 8px;
+  border-radius: 8px;
+}
+
+ion-item-sliding {
+  margin-bottom: 8px;
+}
+
+ion-segment {
+  margin-bottom: 16px;
+}
+
+ion-modal {
+  --width: 90%;
+  --height: 80%;
+  --border-radius: 16px;
+}
+
+ion-modal ion-toolbar {
+  --border-width: 0;
+}
+
+ion-modal ion-content {
+  --background: white;
+}
+
+ion-item-option {
+  padding: 0 16px;
+}

@@ -1,0 +1,366 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Entrenamientos</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openCreateModal()">
+        <ion-icon name="add-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- LISTA DE ENTRENAMIENTOS -->
+  <ion-list *ngIf="workouts.length > 0; else noData">
+    <ion-item *ngFor="let workout of workouts" button (click)="openDetailModal(workout)">
+      <ion-label>
+        <h2>{{ workout.title }}</h2>
+        <p>{{ workout.description }}</p>
+        <p><small>Programado: {{ workout.scheduledAt | date:'short' }}</small></p>
+        <ion-badge *ngIf="workout.completed" color="success">Completado</ion-badge>
+        <ion-badge *ngIf="!workout.completed && isScheduledSoon(workout.scheduledAt)" color="warning">Próximamente</ion-badge>
+        <ion-badge *ngIf="isPastDue(workout)" color="danger">Vencido</ion-badge>
+      </ion-label>
+      <ion-buttons slot="end">
+        <ion-button 
+          *ngIf="!workout.completed" 
+          color="success" 
+          (click)="$event.stopPropagation(); markAsComplete(workout.id)"
+          title="Marcar como completado">
+          <ion-icon slot="icon-only" name="checkmark-outline"></ion-icon>
+        </ion-button>
+        <ion-button 
+          color="warning" 
+          (click)="$event.stopPropagation(); openEditModal(workout)">
+          <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+        </ion-button>
+        <ion-button 
+          color="danger" 
+          (click)="$event.stopPropagation(); confirmDelete(workout.id)">
+          <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-item>
+  </ion-list>
+
+  <ng-template #noData>
+    <ion-text color="medium">
+      <p class="ion-text-center">No hay entrenamientos aún.</p>
+      <p class="ion-text-center">
+        <ion-button fill="outline" (click)="openCreateModal()">
+          <ion-icon slot="start" name="add-outline"></ion-icon>
+          Crear tu primer entrenamiento
+        </ion-button>
+      </p>
+    </ion-text>
+  </ng-template>
+
+  <!-- MODAL CREAR ENTRENAMIENTO -->
+  <ion-modal [isOpen]="isCreateModalOpen" (willDismiss)="closeCreateModal()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Nuevo Entrenamiento</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeCreateModal()">
+              <ion-icon name="close"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      
+      <ion-content class="ion-padding">
+        <form>
+          <ion-item>
+            <ion-label position="floating">Título *</ion-label>
+            <ion-input 
+              [(ngModel)]="title" 
+              name="title" 
+              required
+              placeholder="Ej: Entrenamiento de piernas">
+            </ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating">Descripción *</ion-label>
+            <ion-textarea 
+              [(ngModel)]="description" 
+              name="description"
+              required
+              rows="3"
+              placeholder="Ej: Sentadillas, zancadas, peso muerto">
+            </ion-textarea>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating">Fecha y Hora *</ion-label>
+            <ion-datetime 
+              [(ngModel)]="scheduledAt" 
+              name="scheduledAt" 
+              presentation="date-time"
+              [min]="minDate"
+              required>
+</ion-datetime>
+          </ion-item>
+
+          <ion-item>
+            <ion-label>Ubicación</ion-label>
+            <ion-button 
+              slot="end" 
+              fill="outline" 
+              (click)="getCurrentLocation()"
+              [disabled]="locationLoading">
+              <ion-icon 
+                slot="start" 
+                [name]="locationLoading ? 'hourglass-outline' : 'location-outline'">
+              </ion-icon>
+              {{ locationLoading ? 'Obteniendo...' : 'Obtener Ubicación' }}
+            </ion-button>
+          </ion-item>
+
+          <ion-item *ngIf="latitude !== 0 || longitude !== 0">
+            <ion-label>
+              <h3>Coordenadas:</h3>
+              <p>Latitud: {{ latitude }}</p>
+              <p>Longitud: {{ longitude }}</p>
+            </ion-label>
+          </ion-item>
+
+          <ion-button 
+            expand="block" 
+            class="ion-margin-top" 
+            (click)="saveWorkout()"
+            [disabled]="!title || !description || !scheduledAt">
+            Guardar Entrenamiento
+          </ion-button>
+
+          <ion-note class="ion-margin-top">
+            <p><small>* Campos requeridos</small></p>
+          </ion-note>
+        </form>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- MODAL EDITAR ENTRENAMIENTO -->
+  <ion-modal [isOpen]="isEditModalOpen" (willDismiss)="closeEditModal()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Editar Entrenamiento</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeEditModal()">
+              <ion-icon name="close"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      
+      <ion-content class="ion-padding">
+        <form>
+          <ion-item>
+            <ion-label position="floating">Título *</ion-label>
+            <ion-input 
+              [(ngModel)]="title" 
+              name="title" 
+              required>
+            </ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating">Descripción *</ion-label>
+            <ion-textarea 
+              [(ngModel)]="description" 
+              name="description"
+              required
+              rows="3">
+            </ion-textarea>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating">Fecha y Hora *</ion-label>
+            <ion-datetime 
+              [(ngModel)]="scheduledAt" 
+              name="scheduledAt" 
+              presentation="date-time"
+              required>
+            </ion-datetime>
+          </ion-item>
+
+          <ion-item>
+            <ion-label>Ubicación</ion-label>
+            <ion-button 
+              slot="end" 
+              fill="outline" 
+              (click)="getCurrentLocation()"
+              [disabled]="locationLoading">
+              <ion-icon 
+                slot="start" 
+                [name]="locationLoading ? 'hourglass-outline' : 'refresh-outline'">
+              </ion-icon>
+              {{ locationLoading ? 'Actualizando...' : 'Actualizar' }}
+            </ion-button>
+          </ion-item>
+
+          <ion-item *ngIf="latitude !== 0 || longitude !== 0">
+            <ion-label>
+              <h3>Coordenadas:</h3>
+              <p>Latitud: {{ latitude }}</p>
+              <p>Longitud: {{ longitude }}</p>
+            </ion-label>
+          </ion-item>
+
+          <ion-button 
+            expand="block" 
+            class="ion-margin-top" 
+            (click)="updateWorkout()"
+            [disabled]="!title || !description || !scheduledAt">
+            Actualizar Entrenamiento
+          </ion-button>
+        </form>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- MODAL DETALLES ENTRENAMIENTO -->
+  <ion-modal [isOpen]="isDetailModalOpen" (willDismiss)="closeDetailModal()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Detalles del Entrenamiento</ion-title>
+          <ion-buttons slot="start">
+            <ion-button (click)="closeDetailModal()">
+              <ion-icon name="arrow-back"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+          <ion-buttons slot="end">
+            <ion-button (click)="openEditModal(currentWorkout); closeDetailModal()">
+              <ion-icon name="create-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      
+      <ion-content class="ion-padding">
+        <ng-container *ngIf="currentWorkout">
+          
+          <!-- Estado del entrenamiento -->
+          <ion-item lines="none" *ngIf="currentWorkout.completed">
+            <ion-badge color="success" slot="end">
+              <ion-icon name="checkmark-outline"></ion-icon>
+              Completado
+            </ion-badge>
+          </ion-item>
+          
+          <ion-item lines="none" *ngIf="!currentWorkout.completed && isScheduledSoon(currentWorkout.scheduledAt)">
+            <ion-badge color="warning" slot="end">
+              <ion-icon name="time-outline"></ion-icon>
+              Próximamente
+            </ion-badge>
+          </ion-item>
+          
+          <ion-item lines="none" *ngIf="isPastDue(currentWorkout)">
+            <ion-badge color="danger" slot="end">
+              <ion-icon name="alert-outline"></ion-icon>
+              Vencido
+            </ion-badge>
+          </ion-item>
+
+          <!-- Información principal -->
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>{{ currentWorkout.title }}</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <ion-item lines="none">
+                <ion-icon name="document-text-outline" slot="start"></ion-icon>
+                <ion-label>
+                  <h3>Descripción</h3>
+                  <p>{{ currentWorkout.description }}</p>
+                </ion-label>
+              </ion-item>
+
+              <ion-item lines="none">
+                <ion-icon name="calendar-outline" slot="start"></ion-icon>
+                <ion-label>
+                  <h3>Programado para</h3>
+                  <p>{{ currentWorkout.scheduledAt | date:'full' }}</p>
+                </ion-label>
+              </ion-item>
+
+              <ion-item lines="none" *ngIf="currentWorkout.latitude && currentWorkout.longitude">
+                <ion-icon name="location-outline" slot="start"></ion-icon>
+                <ion-label>
+                  <h3>Ubicación</h3>
+                  <p>{{ currentWorkout.latitude }}, {{ currentWorkout.longitude }}</p>
+                </ion-label>
+                <ion-button 
+                  slot="end" 
+                  fill="outline" 
+                  size="small"
+                  (click)="openInMaps(currentWorkout)">
+                  Ver en Mapa
+                </ion-button>
+              </ion-item>
+            </ion-card-content>
+          </ion-card>
+
+          <!-- Acciones -->
+          <div class="ion-margin-top">
+            <ion-button 
+              *ngIf="!currentWorkout.completed" 
+              expand="block" 
+              color="success"
+              (click)="markAsComplete(currentWorkout.id)">
+              <ion-icon slot="start" name="checkmark-outline"></ion-icon>
+              Marcar como Completado
+            </ion-button>
+
+            <ion-button 
+              *ngIf="currentWorkout.completed" 
+              expand="block" 
+              color="medium"
+              disabled>
+              <ion-icon slot="start" name="checkmark-circle-outline"></ion-icon>
+              Entrenamiento Completado
+            </ion-button>
+          </div>
+
+          <!-- Información adicional -->
+          <ion-card class="ion-margin-top">
+            <ion-card-header>
+              <ion-card-subtitle>Información Adicional</ion-card-subtitle>
+            </ion-card-header>
+            <ion-card-content>
+              <ion-item lines="none" *ngIf="currentWorkout.createdAt">
+                <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+                <ion-label>
+                  <h3>Creado</h3>
+                  <p>{{ currentWorkout.createdAt | date:'medium' }}</p>
+                </ion-label>
+              </ion-item>
+
+              <ion-item lines="none" *ngIf="currentWorkout.updatedAt">
+                <ion-icon name="create-outline" slot="start"></ion-icon>
+                <ion-label>
+                  <h3>Última actualización</h3>
+                  <p>{{ currentWorkout.updatedAt | date:'medium' }}</p>
+                </ion-label>
+              </ion-item>
+
+              <ion-item lines="none" *ngIf="currentWorkout.completedAt">
+                <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+                <ion-label>
+                  <h3>Completado el</h3>
+                  <p>{{ currentWorkout.completedAt | date:'medium' }}</p>
+                </ion-label>
+              </ion-item>
+            </ion-card-content>
+          </ion-card>
+
+        </ng-container>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+</ion-content>

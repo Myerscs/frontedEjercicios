@@ -1,0 +1,87 @@
+<ion-content class="ion-padding login-page">
+  <div class="login-container">
+    <img src="assets/icon/contrasena.png" alt="Logo" class="logo" />
+
+    <h2>{{ isLoginMode ? 'Bienvenido a TheApp#1' : 'Crear cuenta en Myers.exe' }}</h2>
+    <p class="subtitle">{{ isLoginMode ? 'Inicia sesión para continuar' : 'Completa los datos para registrarte' }}</p>
+
+    <!-- Campos del formulario -->
+    <ion-item *ngIf="!isLoginMode">
+      <ion-label position="floating">Nombre de usuario</ion-label>
+      <ion-input #username type="text" name="username" required></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Correo electrónico</ion-label>
+      <ion-input #email type="email" name="email" required></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Contraseña</ion-label>
+      <ion-input #password type="password" name="password" required></ion-input>
+    </ion-item>
+
+    <ion-item *ngIf="!isLoginMode">
+      <ion-label position="floating">Confirmar contraseña</ion-label>
+      <ion-input #confirmPassword type="password" name="confirmPassword" required></ion-input>
+    </ion-item>
+
+    <!-- Botón principal (Login o Registro) -->
+    <ion-button 
+      expand="block" 
+      type="submit" 
+      class="login-button" 
+      (click)="isLoginMode ? login() : register()">
+      {{ isLoginMode ? 'Iniciar sesión' : 'Registrarse' }}
+    </ion-button>
+
+    <!-- Botón de Google (solo en modo login) -->
+      <ion-button 
+      *ngIf="isLoginMode"
+      expand="block" 
+      color="light" 
+      class="google-button" 
+      (click)="loginWithGoogle()"> 
+      <ion-icon name="logo-google" slot="start"></ion-icon>
+      Iniciar con Google
+    </ion-button>
+
+    <!-- Enlaces de navegación -->
+    <div class="auth-links">
+      <div class="forgot-password" *ngIf="isLoginMode">
+        <a (click)="recoverPassword()">¿Olvidaste tu contraseña?</a>
+      </div>
+      
+      <div class="switch-mode">
+        <p *ngIf="isLoginMode">
+          ¿No tienes cuenta? 
+          <a (click)="toggleMode()">Regístrate aquí</a>
+        </p>
+        <p *ngIf="!isLoginMode">
+          ¿Ya tienes cuenta? 
+          <a (click)="toggleMode()">Inicia sesión</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alertas -->
+  <ion-alert
+  header="Error"
+  [subHeader]="alertSubHeader"
+  [message]="alertMessage"
+  [isOpen]="showAlert"
+  (didDismiss)="showAlert = false"
+  [buttons]="['OK']">
+</ion-alert>
+
+<ion-alert
+  header="Éxito"
+  subHeader="Registro completado"
+  message="Tu cuenta ha sido creada exitosamente. Ya puedes iniciar sesión."
+  [isOpen]="showSuccessAlert"
+  (didDismiss)="showSuccessAlert = false; toggleMode()"
+  [buttons]="['OK']">
+</ion-alert>
+</ion-content>
+

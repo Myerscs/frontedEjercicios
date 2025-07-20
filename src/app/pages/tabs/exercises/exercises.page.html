@@ -1,0 +1,115 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Gestión de Ejercicios</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openEditModal()">
+        <ion-icon slot="icon-only" name="add"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-searchbar 
+    [(ngModel)]="searchTerm" 
+    (ionChange)="filterExercises()" 
+    placeholder="Buscar ejercicios...">
+  </ion-searchbar>
+
+  <ion-segment [(ngModel)]="selectedCategory" (ionChange)="filterExercises()">
+    <ion-segment-button value="">
+      <ion-label>Todos</ion-label>
+    </ion-segment-button>
+    <ion-segment-button *ngFor="let category of categories" [value]="category">
+      <ion-label>{{ category }}</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <ion-list>
+    <ion-item-sliding *ngFor="let exercise of filteredExercises">
+      <ion-item>
+        <ion-label>
+          <h2>{{ exercise.name }}</h2>
+          <p>{{ exercise.category }} • {{ exercise.muscles }}</p>
+          <p>{{ exercise.description }}</p>
+        </ion-label>
+      </ion-item>
+
+      <ion-item-options side="end">
+        <ion-item-option color="primary" (click)="openEditModal(exercise)">
+          <ion-icon slot="icon-only" name="create"></ion-icon>
+        </ion-item-option>
+        <ion-item-option color="danger" (click)="openDeleteModal(exercise)">
+          <ion-icon slot="icon-only" name="trash"></ion-icon>
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+
+  <!-- Modal Crear / Editar -->
+  <ion-modal [isOpen]="isModalOpen" (didDismiss)="isModalOpen = false">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar color="primary">
+          <ion-title>{{ currentExercise.id ? 'Editar' : 'Crear' }} Ejercicio</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="isModalOpen = false">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <ion-item>
+          <ion-label position="stacked">Nombre</ion-label>
+          <ion-input [(ngModel)]="currentExercise.name"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Categoría</ion-label>
+          <ion-select [(ngModel)]="currentExercise.category" interface="action-sheet">
+            <ion-select-option *ngFor="let category of categories" [value]="category">
+              {{ category }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Grupo muscular</ion-label>
+          <ion-select [(ngModel)]="currentExercise.muscles" multiple="true" interface="action-sheet">
+            <ion-select-option *ngFor="let muscle of muscleGroups" [value]="muscle">
+              {{ muscle }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Descripción</ion-label>
+          <ion-textarea [(ngModel)]="currentExercise.description" rows="5"></ion-textarea>
+        </ion-item>
+
+        <ion-button expand="block" (click)="saveExercise()" class="ion-margin-top">
+          Guardar
+        </ion-button>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Modal Eliminar -->
+  <ion-modal [isOpen]="isDeleteModalOpen" (didDismiss)="isDeleteModalOpen = false">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar color="danger">
+          <ion-title>Confirmar Eliminación</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="isDeleteModalOpen = false">Cancelar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <p>¿Estás seguro de que deseas eliminar "{{ currentExercise.name }}"?</p>
+        <ion-button expand="block" color="danger" (click)="confirmDelete()" class="ion-margin-top">
+          Eliminar
+        </ion-button>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</ion-content>

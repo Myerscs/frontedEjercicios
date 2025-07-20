@@ -1,0 +1,81 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Editar Entrenamiento</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/workouts"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form>
+    <ion-item>
+      <ion-label position="floating">Título *</ion-label>
+      <ion-input 
+        [(ngModel)]="title" 
+        name="title" 
+        required
+        placeholder="Ej: Entrenamiento de piernas">
+      </ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Descripción *</ion-label>
+      <ion-textarea 
+        [(ngModel)]="description" 
+        name="description"
+        required
+        rows="3"
+        placeholder="Ej: Sentadillas, zancadas, peso muerto">
+      </ion-textarea>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Fecha y Hora *</ion-label>
+      <ion-datetime 
+  [(ngModel)]="scheduledAt" 
+  name="scheduledAt" 
+  presentation="date-time"
+  [min]="minDate"
+  required>
+</ion-datetime>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>Ubicación Actual</ion-label>
+      <ion-button 
+        slot="end" 
+        fill="outline" 
+        (click)="getCurrentLocation()"
+        [disabled]="locationLoading">
+        <ion-icon 
+          slot="start" 
+          [name]="locationLoading ? 'hourglass-outline' : 'refresh-outline'">
+        </ion-icon>
+        {{ locationLoading ? 'Actualizando...' : 'Actualizar' }}
+      </ion-button>
+    </ion-item>
+
+    <ion-item *ngIf="latitude !== 0 || longitude !== 0">
+      <ion-label>
+        <h3>Coordenadas:</h3>
+        <p>Latitud: {{ latitude }}</p>
+        <p>Longitud: {{ longitude }}</p>
+      </ion-label>
+    </ion-item>
+
+    <ion-button 
+      expand="block" 
+      class="ion-margin-top" 
+      (click)="updateWorkout()"
+      [disabled]="!title || !description || !scheduledAt">
+      Actualizar Entrenamiento
+    </ion-button>
+
+    <ion-note class="ion-margin-top">
+      <p><small>* Campos requeridos</small></p>
+    </ion-note>
+  </form>
+</ion-content>
+
+
