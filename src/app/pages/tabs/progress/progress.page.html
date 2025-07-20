@@ -1,13 +1,148 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>progress</ion-title>
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Seguimiento de Progreso</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openEditModal()">
+        <ion-icon slot="icon-only" name="add"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">progress</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+  <!-- Estadísticas -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Resumen</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <ion-text color="primary">
+              <h2>{{stats.currentWeight || '--'}} kg</h2>
+              <p>Peso actual</p>
+            </ion-text>
+          </ion-col>
+          <ion-col size="6">
+            <ion-text color="danger">
+              <h2>{{stats.currentBodyFat || '--'}}%</h2>
+              <p>Grasa corporal</p>
+            </ion-text>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <ion-text>
+              <h3>{{stats.weightChange || '--'}} kg</h3>
+              <p>Cambio (30 días)</p>
+            </ion-text>
+          </ion-col>
+          <ion-col size="6">
+            <ion-text>
+              <h3>{{stats.bodyFatChange || '--'}}%</h3>
+              <p>Cambio (30 días)</p>
+            </ion-text>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Gráficos -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Evolución</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <div style="height: 200px">
+        <canvas id="weightChart"></canvas>
+      </div>
+      <div style="height: 200px" class="ion-margin-top">
+        <canvas id="bodyFatChart"></canvas>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Historial -->
+  <ion-list>
+    <ion-list-header>
+      <ion-label>Registros Anteriores</ion-label>
+    </ion-list-header>
+    
+    <ion-item-sliding *ngFor="let record of progressRecords">
+      <ion-item>
+        <ion-label>
+          <h2>{{record.weightKg}} kg • {{record.bodyFat}}% grasa</h2>
+          <p>{{record.createdAt | date:'mediumDate'}}</p>
+          <p *ngIf="record.notes">{{record.notes}}</p>
+        </ion-label>
+      </ion-item>
+
+      <ion-item-options side="end">
+        <ion-item-option color="primary" (click)="openEditModal(record)">
+          <ion-icon slot="icon-only" name="create"></ion-icon>
+        </ion-item-option>
+        <ion-item-option color="danger" (click)="openDeleteModal(record)">
+          <ion-icon slot="icon-only" name="trash"></ion-icon>
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+
+  <!-- Modal para agregar/editar -->
+  <ion-modal [isOpen]="isModalOpen" (didDismiss)="isModalOpen = false">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar color="primary">
+          <ion-title>{{currentProgress.id ? 'Editar' : 'Nuevo'}} Registro</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="isModalOpen = false">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <ion-item>
+          <ion-label position="stacked">Peso (kg)</ion-label>
+          <ion-input type="number" [(ngModel)]="currentProgress.weightKg"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Grasa Corporal (%)</ion-label>
+          <ion-input type="number" [(ngModel)]="currentProgress.bodyFat"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Notas</ion-label>
+          <ion-textarea [(ngModel)]="currentProgress.notes" rows="3" placeholder="Ej: Después del desayuno..."></ion-textarea>
+        </ion-item>
+
+        <ion-button expand="block" (click)="saveProgress()" class="ion-margin-top">
+          {{currentProgress.id ? 'Actualizar' : 'Guardar'}}
+        </ion-button>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Modal de confirmación para eliminar -->
+  <ion-modal [isOpen]="isDeleteModalOpen" (didDismiss)="isDeleteModalOpen = false">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar color="danger">
+          <ion-title>Confirmar Eliminación</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="isDeleteModalOpen = false">Cancelar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <p>¿Estás seguro que deseas eliminar el registro del {{currentProgress.createdAt | date:'mediumDate'}}?</p>
+        <p>Peso: {{currentProgress.weightKg}} kg</p>
+        <p>Grasa: {{currentProgress.bodyFat}}%</p>
+        <ion-button expand="block" color="danger" (click)="confirmDelete()" class="ion-margin-top">
+          Eliminar
+        </ion-button>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 </ion-content>
