@@ -10,37 +10,74 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <!-- Estadísticas -->
+  <!-- Mensaje de éxito -->
+  <ion-card *ngIf="showSuccessMessage" class="success-card">
+    <ion-card-content>
+      <ion-row>
+        <ion-col size="2">
+          <ion-icon name="trophy" color="success" size="large"></ion-icon>
+        </ion-col>
+        <ion-col size="10">
+          <ion-text color="success">
+            <h3>{{successMessage}}</h3>
+          </ion-text>
+        </ion-col>
+      </ion-row>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Estadísticas Principales -->
   <ion-card>
     <ion-card-header>
-      <ion-card-title>Resumen</ion-card-title>
+      <ion-card-title>
+        Resumen
+        <ion-badge [color]="getOverallTrendColor()" class="ion-margin-start">
+          {{getOverallTrendText()}}
+        </ion-badge>
+      </ion-card-title>
     </ion-card-header>
     <ion-card-content>
       <ion-grid>
         <ion-row>
           <ion-col size="6">
-            <ion-text color="primary">
-              <h2>{{stats.currentWeight || '--'}} kg</h2>
-              <p>Peso actual</p>
-            </ion-text>
+            <div class="stat-container">
+              <ion-text [color]="stats.isLosingWeight ? 'success' : 'primary'">
+                <h2>{{stats.currentWeight || '--'}} kg</h2>
+                <p>Peso actual</p>
+              </ion-text>
+              <ion-icon 
+                *ngIf="stats.isLosingWeight" 
+                name="trending-down" 
+                color="success" 
+                class="trend-icon">
+              </ion-icon>
+            </div>
           </ion-col>
           <ion-col size="6">
-            <ion-text color="danger">
-              <h2>{{stats.currentBodyFat || '--'}}%</h2>
-              <p>Grasa corporal</p>
-            </ion-text>
+            <div class="stat-container">
+              <ion-text [color]="stats.isLosingBodyFat ? 'success' : 'danger'">
+                <h2>{{stats.currentBodyFat || '--'}}%</h2>
+                <p>Grasa corporal</p>
+              </ion-text>
+              <ion-icon 
+                *ngIf="stats.isLosingBodyFat" 
+                name="trending-down" 
+                color="success" 
+                class="trend-icon">
+              </ion-icon>
+            </div>
           </ion-col>
         </ion-row>
         <ion-row>
           <ion-col size="6">
-            <ion-text>
-              <h3>{{stats.weightChange || '--'}} kg</h3>
+            <ion-text [color]="stats.weightChange <= 0 ? 'success' : 'danger'">
+              <h3>{{formatChange(stats.weightChange, ' kg')}}</h3>
               <p>Cambio (30 días)</p>
             </ion-text>
           </ion-col>
           <ion-col size="6">
-            <ion-text>
-              <h3>{{stats.bodyFatChange || '--'}}%</h3>
+            <ion-text [color]="stats.bodyFatChange <= 0 ? 'success' : 'danger'">
+              <h3>{{formatChange(stats.bodyFatChange, '%')}}</h3>
               <p>Cambio (30 días)</p>
             </ion-text>
           </ion-col>
@@ -49,34 +86,103 @@
     </ion-card-content>
   </ion-card>
 
-  <!-- Gráficos -->
+  <!-- Estadísticas Adicionales -->
+  <ion-card *ngIf="stats.totalWeightLoss > 0 || stats.totalBodyFatLoss > 0">
+    <ion-card-header>
+      <ion-card-title>Progreso Total</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="4">
+            <ion-text color="success">
+              <h3>{{stats.totalWeightLoss.toFixed(1)}} kg</h3>
+              <p>Peso perdido</p>
+            </ion-text>
+          </ion-col>
+          <ion-col size="4">
+            <ion-text color="success">
+              <h3>{{stats.totalBodyFatLoss.toFixed(1)}}%</h3>
+              <p>Grasa perdida</p>
+            </ion-text>
+          </ion-col>
+          <ion-col size="4">
+            <ion-text color="secondary">
+              <h3>{{stats.consecutiveImprovements}}</h3>
+              <p>Mejoras seguidas</p>
+            </ion-text>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Gráficos Mejorados -->
   <ion-card>
     <ion-card-header>
       <ion-card-title>Evolución</ion-card-title>
+      <ion-card-subtitle>
+        Las líneas punteadas muestran la tendencia
+      </ion-card-subtitle>
     </ion-card-header>
     <ion-card-content>
-      <div style="height: 200px">
+      <div style="height: 250px" class="chart-container">
         <canvas id="weightChart"></canvas>
       </div>
-      <div style="height: 200px" class="ion-margin-top">
+      <div style="height: 250px" class="ion-margin-top chart-container">
         <canvas id="bodyFatChart"></canvas>
       </div>
     </ion-card-content>
   </ion-card>
 
-  <!-- Historial -->
+  <!-- Historial con Indicadores de Tendencia -->
   <ion-list>
     <ion-list-header>
       <ion-label>Registros Anteriores</ion-label>
     </ion-list-header>
     
-    <ion-item-sliding *ngFor="let record of progressRecords">
-      <ion-item>
+    <ion-item-sliding *ngFor="let record of progressRecords; let i = index">
+      <ion-item [class.improvement-item]="record.isImprovement">
+        <ion-icon 
+          *ngIf="record.isImprovement" 
+          slot="start" 
+          name="checkmark-circle" 
+          color="success">
+        </ion-icon>
         <ion-label>
-          <h2>{{record.weightKg}} kg • {{record.bodyFat}}% grasa</h2>
+          <h2>
+            {{record.weightKg}} kg • {{record.bodyFat}}% grasa
+            <ion-icon 
+              *ngIf="record.weightTrend" 
+              [name]="getTrendIcon(record.weightTrend)" 
+              [color]="getTrendColor(record.weightTrend, true)"
+              class="trend-icon-small">
+            </ion-icon>
+            <ion-icon 
+              *ngIf="record.bodyFatTrend" 
+              [name]="getTrendIcon(record.bodyFatTrend)" 
+              [color]="getTrendColor(record.bodyFatTrend, false)"
+              class="trend-icon-small">
+            </ion-icon>
+          </h2>
           <p>{{record.createdAt | date:'mediumDate'}}</p>
-          <p *ngIf="record.notes">{{record.notes}}</p>
+          <p *ngIf="record.weightChange !== undefined && record.bodyFatChange !== undefined" class="change-info">
+            <ion-text [color]="record.weightChange <= 0 ? 'success' : 'danger'">
+              Peso: {{formatChange(record.weightChange, 'kg')}}
+            </ion-text>
+            <span class="ion-margin-start"></span>
+            <ion-text [color]="record.bodyFatChange <= 0 ? 'success' : 'danger'">
+              Grasa: {{formatChange(record.bodyFatChange, '%')}}
+            </ion-text>
+          </p>
+          <p *ngIf="record.notes" class="notes">{{record.notes}}</p>
         </ion-label>
+        <ion-badge 
+          *ngIf="record.isImprovement" 
+          slot="end" 
+          color="success">
+          Mejora
+        </ion-badge>
       </ion-item>
 
       <ion-item-options side="end">
@@ -104,17 +210,21 @@
       <ion-content class="ion-padding">
         <ion-item>
           <ion-label position="stacked">Peso (kg)</ion-label>
-          <ion-input type="number" [(ngModel)]="currentProgress.weightKg"></ion-input>
+          <ion-input type="number" [(ngModel)]="currentProgress.weightKg" step="0.1"></ion-input>
         </ion-item>
 
         <ion-item>
           <ion-label position="stacked">Grasa Corporal (%)</ion-label>
-          <ion-input type="number" [(ngModel)]="currentProgress.bodyFat"></ion-input>
+          <ion-input type="number" [(ngModel)]="currentProgress.bodyFat" step="0.1"></ion-input>
         </ion-item>
 
         <ion-item>
           <ion-label position="stacked">Notas</ion-label>
-          <ion-textarea [(ngModel)]="currentProgress.notes" rows="3" placeholder="Ej: Después del desayuno..."></ion-textarea>
+          <ion-textarea 
+            [(ngModel)]="currentProgress.notes" 
+            rows="3" 
+            placeholder="Ej: Después del desayuno, sin ropa...">
+          </ion-textarea>
         </ion-item>
 
         <ion-button expand="block" (click)="saveProgress()" class="ion-margin-top">
@@ -137,8 +247,8 @@
       </ion-header>
       <ion-content class="ion-padding">
         <p>¿Estás seguro que deseas eliminar el registro del {{currentProgress.createdAt | date:'mediumDate'}}?</p>
-        <p>Peso: {{currentProgress.weightKg}} kg</p>
-        <p>Grasa: {{currentProgress.bodyFat}}%</p>
+        <p><strong>Peso:</strong> {{currentProgress.weightKg}} kg</p>
+        <p><strong>Grasa:</strong> {{currentProgress.bodyFat}}%</p>
         <ion-button expand="block" color="danger" (click)="confirmDelete()" class="ion-margin-top">
           Eliminar
         </ion-button>

@@ -1,11 +1,396 @@
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+// Búsqueda y filtros
+.search-filters {
+  padding: 16px;
+  background: var(--ion-color-light);
+  
+  .filters-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+    align-items: center;
+    
+    ion-select {
+      flex: 1;
+      --background: var(--ion-color-primary-tint);
+      --color: var(--ion-color-primary);
+      border-radius: 8px;
+      padding: 8px 12px;
+    }
+    
+    ion-datetime-button {
+      --background: var(--ion-color-secondary-tint);
+      --color: var(--ion-color-secondary);
+      border-radius: 8px;
+      padding: 8px 12px;
+    }
+  }
+}
+
+// Lista de entrenamientos
+.workouts-list {
+  padding: 16px;
+  
+  .workout-card {
+    margin-bottom: 16px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+    }
+    
+    .card-header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      
+      ion-card-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--ion-color-primary);
+        margin-bottom: 8px;
+      }
+      
+      .workout-status {
+        ion-chip {
+          font-size: 0.8rem;
+          
+          ion-icon {
+            margin-right: 4px;
+          }
+        }
+      }
+    }
+    
+    ion-card-content {
+      p {
+        color: var(--ion-color-medium);
+        margin-bottom: 12px;
+        line-height: 1.4;
+      }
+      
+      .scheduled-date {
+        display: flex;
+        align-items: center;
+        color: var(--ion-color-secondary);
+        font-weight: 500;
+        
+        ion-icon {
+          margin-right: 8px;
+        }
+      }
+      
+      .workout-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+        
+        ion-button {
+          --padding-start: 8px;
+          --padding-end: 8px;
+          font-size: 0.9rem;
+          
+          ion-icon {
+            font-size: 1rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Estados de carga y vacío
+.loading-container, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  
+  ion-spinner {
+    margin-bottom: 16px;
+  }
+  
+  ion-icon {
+    font-size: 4rem;
+    color: var(--ion-color-medium);
+    margin-bottom: 16px;
+  }
+  
+  h3 {
+    color: var(--ion-color-dark);
+    margin-bottom: 8px;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    margin-bottom: 20px;
+  }
+}
+
+// Modales
+ion-modal {
+  .form-actions {
+    margin-top: 24px;
+    
+    ion-button {
+      margin-top: 16px;
+    }
+  }
+  
+  // Modal de plantillas
+  ion-list {
+    ion-item {
+      --padding-start: 20px;
+      --padding-end: 20px;
+      margin-bottom: 8px;
+      
+      ion-label {
+        h3 {
+          font-weight: 600;
+          color: var(--ion-color-primary);
+          margin-bottom: 4px;
+        }
+        
+        p {
+          color: var(--ion-color-medium);
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+  
+  // Modal de detalle con timer
+  .workout-detail {
+    .description {
+      font-size: 1.1rem;
+      line-height: 1.5;
+      color: var(--ion-color-dark);
+      margin-bottom: 24px;
+      padding: 16px;
+      background: var(--ion-color-light);
+      border-radius: 8px;
+    }
+    
+    .timer-section {
+      text-align: center;
+      margin: 32px 0;
+      
+      .timer-display {
+        background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-secondary));
+        border-radius: 20px;
+        padding: 32px;
+        margin-bottom: 24px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        
+        h2 {
+          font-size: 3rem;
+          font-weight: 300;
+          color: white;
+          margin: 0;
+          text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          font-family: 'Courier New', monospace;
+        }
+      }
+      
+      .timer-controls {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        
+        ion-button {
+          --padding-start: 16px;
+          --padding-end: 16px;
+          --border-radius: 25px;
+          font-weight: 500;
+          
+          ion-icon {
+            font-size: 1.1rem;
+          }
+        }
+      }
+    }
+    
+    .workout-info {
+      background: var(--ion-color-light);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 24px;
+      
+      p {
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        
+        strong {
+          color: var(--ion-color-dark);
+        }
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+      
+      ion-chip {
+        margin-left: 8px;
+      }
+    }
+  }
+}
+
+// Items de formulario
+ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  margin-bottom: 16px;
+  
+  ion-label {
+    font-weight: 500;
+    color: var(--ion-color-dark);
+    margin-bottom: 8px;
+  }
+  
+  ion-input, ion-textarea, ion-datetime {
+    --padding-start: 12px;
+    --padding-end: 12px;
+    --background: var(--ion-color-light);
+    border-radius: 8px;
+    border: 1px solid var(--ion-color-light-shade);
+    
+    &:focus-within {
+      --background: white;
+      border-color: var(--ion-color-primary);
+    }
+  }
+  
+  ion-button {
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --border-radius: 8px;
+    margin-top: 8px;
+  }
+}
+
+// FAB personalizado
+ion-fab {
+  ion-fab-button {
+    --background: var(--ion-color-tertiary);
+    --color: white;
+    --box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    
+    &:hover {
+      --background: var(--ion-color-tertiary-shade);
+    }
+  }
+}
+
+// Chips personalizados
+ion-chip {
+  --background: var(--ion-color-light);
+  --color: var(--ion-color-dark);
+  font-weight: 500;
+  
+  ion-icon {
+    font-size: 1rem;
+  }
+  
+  &[color="success"] {
+    --background: var(--ion-color-success-tint);
+    --color: var(--ion-color-success-shade);
+  }
+  
+  &[color="medium"] {
+    --background: var(--ion-color-medium-tint);
+    --color: var(--ion-color-medium-shade);
+  }
+}
+
+// Searchbar personalizado
+ion-searchbar {
+  --background: white;
+  --border-radius: 12px;
+  --box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  --icon-color: var(--ion-color-primary);
+  --placeholder-color: var(--ion-color-medium);
+  
+  .searchbar-input {
+    font-size: 1rem;
+  }
+}
+
+// Header personalizado
+ion-header {
+  ion-toolbar {
+    --background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-secondary));
+    --color: white;
+    
+    ion-title {
+      font-weight: 600;
+      font-size: 1.3rem;
+    }
+    
+    ion-button {
+      --color: white;
+      --background-hover: rgba(255,255,255,0.1);
+    }
+  }
+}
+
+// Animaciones
+@keyframes slideInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.workout-card {
+  animation: slideInUp 0.3s ease-out;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .filters-row {
+    flex-direction: column;
+    
+    ion-select, ion-datetime-button {
+      width: 100%;
+    }
+  }
+  
+  .workout-actions {
+    ion-button {
+      flex: 1;
+      min-width: calc(50% - 4px);
+    }
+  }
+  
+  .timer-controls {
+    ion-button {
+      flex: 1;
+      min-width: calc(50% - 6px);
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .timer-display h2 {
+    font-size: 2.5rem;
+  }
+  
+  .workout-actions {
+    ion-button {
+      min-width: 100%;
+      margin-bottom: 8px;
+    }
+  }
 }

@@ -1,172 +1,43 @@
-<ion-header [translucent]="true">
-  <ion-toolbar color="primary">
+<ion-header>
+  <ion-toolbar>
     <ion-title>Rutas de Cardio</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="toggleCreateMode()" fill="clear">
-        <ion-icon name="{{ isCreatingRoute ? 'close' : 'add' }}" slot="icon-only"></ion-icon>
-      </ion-button>
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <!-- Mapa -->
-  <div id="map" style="height: 60vh; width: 100%;"></div>
+<ion-content>
+  <div id="map" style="height: 60vh;"></div>
 
-  <!-- Panel de controles -->
-  <div class="controls-panel">
-    <!-- Modo creación de ruta -->
-    <div *ngIf="isCreatingRoute" class="create-route-panel">
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>Crear Nueva Ruta</ion-card-title>
-          <ion-card-subtitle>Haz clic en el mapa para agregar puntos</ion-card-subtitle>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-item>
-            <ion-label position="stacked">Nombre de la ruta</ion-label>
-            <ion-input [(ngModel)]="newRouteName" placeholder="Ej: Ruta Parque Central"></ion-input>
-          </ion-item>
-          
-          <div class="route-info" *ngIf="routePoints.length > 1">
-            <p><strong>Distancia:</strong> {{ calculateDistance().toFixed(2) }} km</p>
-            <p><strong>Puntos:</strong> {{ routePoints.length }}</p>
-          </div>
+  <ion-button expand="block" color="primary" (click)="saveNewRoute()">
+    Crear Nueva Ruta desde Selección
+  </ion-button>
 
-          <div class="button-group">
-            <ion-button (click)="clearRoute()" fill="outline" color="warning" size="small">
-              <ion-icon name="refresh" slot="start"></ion-icon>
-              Limpiar
-            </ion-button>
-            <ion-button (click)="saveRoute()" color="success" size="small" [disabled]="!canSaveRoute()">
-              <ion-icon name="save" slot="start"></ion-icon>
-              Guardar
-            </ion-button>
-          </div>
-        </ion-card-content>
-      </ion-card>
-    </div>
+  <ion-list>
+    <ion-list-header>Rutas Personales</ion-list-header>
+    <ion-item *ngFor="let route of routes">
+      <ion-label>
+        <h2>{{ route.name }}</h2>
+        <p>Estado: {{ route.status || 'pendiente' }}</p>
+      </ion-label>
 
-    <!-- Lista de rutas -->
-    <div *ngIf="!isCreatingRoute" class="routes-list">
-      <!-- Tabs para alternar entre mis rutas y populares -->
-      <ion-segment [(ngModel)]="activeTab" (ionChange)="onTabChange()">
-        <ion-segment-button value="my-routes">
-          <ion-label>Mis Rutas</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="popular">
-          <ion-label>Populares</ion-label>
-        </ion-segment-button>
-      </ion-segment>
+      <ion-button *ngIf="route.status !== 'started' && route.status !== 'completed'" slot="end" color="success" (click)="startRoute(route.id)">
+        Iniciar
+      </ion-button>
 
-      <!-- Contenido de las tabs -->
-      <div [ngSwitch]="activeTab">
-        <!-- Mis rutas -->
-        <div *ngSwitchCase="'my-routes'">
-          <ion-card *ngFor="let route of myRoutes; trackBy: trackByRouteId" (click)="showRouteOnMap(route)">
-            <ion-card-content>
-              <div class="route-item">
-                <div class="route-info">
-                  <h3>{{ route.name }}</h3>
-                  <p>{{ route.distanceKm }} km</p>
-                </div>
-                <div class="route-actions">
-                  <ion-button fill="clear" size="small" (click)="editRoute(route); $event.stopPropagation()">
-                    <ion-icon name="create" slot="icon-only"></ion-icon>
-                  </ion-button>
-                  <ion-button fill="clear" size="small" color="success" (click)="startTimer(route); $event.stopPropagation()">
-                    <ion-icon name="play" slot="icon-only"></ion-icon>
-                  </ion-button>
-                  <ion-button fill="clear" size="small" color="danger" (click)="deleteRoute(route); $event.stopPropagation()">
-                    <ion-icon name="trash" slot="icon-only"></ion-icon>
-                  </ion-button>
-                </div>
-              </div>
-            </ion-card-content>
-          </ion-card>
+      <ion-button *ngIf="route.status === 'started'" slot="end" color="warning" (click)="resetTimer()">
+        Resetear Tiempo
+      </ion-button>
 
-          <div *ngIf="myRoutes.length === 0" class="empty-state">
-            <ion-icon name="map-outline" size="large"></ion-icon>
-            <h3>No tienes rutas aún</h3>
-            <p>Crea tu primera ruta de cardio tocando el botón +</p>
-          </div>
-        </div>
+      <ion-button *ngIf="route.status === 'started'" slot="end" color="tertiary" (click)="completeRoute(route.id)">
+  Completar
+</ion-button>
 
-        <!-- Rutas populares -->
-        <div *ngSwitchCase="'popular'">
-          <ion-card *ngFor="let route of popularRoutes; trackBy: trackByRouteId" (click)="showRouteOnMap(route)">
-            <ion-card-content>
-              <div class="route-item">
-                <div class="route-info">
-                  <h3>{{ route.name }}</h3>
-                  <p>{{ route.distanceKm }} km</p>
-                </div>
-                <div class="route-actions">
-                  <ion-button fill="clear" size="small" color="success" (click)="startTimer(route); $event.stopPropagation()">
-                    <ion-icon name="play" slot="icon-only"></ion-icon>
-                  </ion-button>
-                </div>
-              </div>
-            </ion-card-content>
-          </ion-card>
+      <ion-button slot="end" color="danger" (click)="deleteRoute(route.id)">Eliminar</ion-button>
+    </ion-item>
+  </ion-list>
 
-          <div *ngIf="popularRoutes.length === 0" class="empty-state">
-            <ion-icon name="people-outline" size="large"></ion-icon>
-            <h3>No hay rutas populares</h3>
-            <p>Sé el primero en crear rutas en tu zona</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Timer modal -->
-  <ion-modal [isOpen]="showTimer" (willDismiss)="stopTimer()">
-    <ng-template>
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>{{ selectedRoute?.name }}</ion-title>
-          <ion-buttons slot="end">
-            <ion-button (click)="stopTimer()">Cerrar</ion-button>
-          </ion-buttons>
-        </ion-toolbar>
-      </ion-header>
-      <ion-content class="timer-content">
-        <div class="timer-display">
-          <h1>{{ formatTime(elapsedTime) }}</h1>
-          <p>{{ selectedRoute?.distanceKm }} km</p>
-          
-          <div class="timer-buttons">
-            <ion-button *ngIf="!timerActive" (click)="startTimer()" color="success" size="large">
-              <ion-icon name="play" slot="start"></ion-icon>
-              Iniciar
-            </ion-button>
-            <ion-button *ngIf="timerActive" (click)="pauseTimer()" color="warning" size="large">
-              <ion-icon name="pause" slot="start"></ion-icon>
-              Pausar
-            </ion-button>
-            <ion-button (click)="resetTimer()" fill="outline" size="large">
-              <ion-icon name="refresh" slot="start"></ion-icon>
-              Reset
-            </ion-button>
-            <ion-button (click)="finishRun()" color="primary" size="large" [disabled]="elapsedTime === 0">
-              <ion-icon name="checkmark" slot="start"></ion-icon>
-              Finalizar
-            </ion-button>
-          </div>
-        </div>
-      </ion-content>
-    </ng-template>
-  </ion-modal>
-
-  <!-- Loading -->
-  <ion-loading [isOpen]="loading" message="Cargando..."></ion-loading>
-
-  <!-- Toast messages -->
-  <ion-toast
-    [isOpen]="showToast"
-    [message]="toastMessage"
-    [duration]="3000"
-    (didDismiss)="showToast = false">
-  </ion-toast>
+  <ion-footer *ngIf="activeRouteId !== null">
+    <ion-toolbar>
+      <ion-title>Tiempo: {{ formatTime(elapsedSeconds) }}</ion-title>
+    </ion-toolbar>
+  </ion-footer>
 </ion-content>

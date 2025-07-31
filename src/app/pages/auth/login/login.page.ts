@@ -119,12 +119,14 @@ export class LoginPage {
       next: (response: IUserLogin) => {
         console.log('Login exitoso', response);
         this.router.navigate(['/tabs']);
-        this.presentToast('🎬 ¡Bienvenid@ a TheApp#1!');
+        this.presentToast('🎬 ¡Bienvenid@ a FitTracker');
         
 
        localStorage.setItem('token', response.token);
        localStorage.setItem('name', response.user.name);
        localStorage.setItem('userId', response.user.id.toString());
+       localStorage.setItem('lastUsedAt', Date.now().toString());
+
       },
       error: (error: HttpErrorResponse) => {
         console.error('Error de login', error);

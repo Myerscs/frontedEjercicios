@@ -2,80 +2,105 @@
   <ion-toolbar color="primary">
     <ion-title>Mi Fitness</ion-title>
     <ion-buttons slot="end">
-      <ion-button routerLink="/profile">
+      <ion-button routerLink="/tabs/profile">
         <ion-icon slot="icon-only" name="person-circle"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding" [fullscreen]="true">
-  <!-- Sección de Bienvenida -->
+<ion-content class="ion-padding">
+  <!-- Bienvenida Personalizada -->
   <div class="welcome-section">
-    <div>
-      <h1>Hola, {{userName}}!</h1>
-      <p class="text-muted">{{currentDate}} • {{currentLocation}}</p>
+    <div class="user-greeting">
+      <h1>{{ greeting }}, {{ userName }}! 👋</h1>
+      <p class="date-info">{{ currentDate }}</p>
+      <!-- ✅ Usamos variable en lugar de función -->
+      <p class="motivational">{{ motivationalMessage }}</p>
     </div>
-    <ion-badge color="warning">
-      <ion-icon name="partly-sunny"></ion-icon>
-      {{weather | titlecase}}
-    </ion-badge>
   </div>
 
-  <!-- Resumen Rápido -->
-  <ion-grid class="quick-stats">
-    <ion-row>
-      <ion-col size="6" *ngFor="let stat of [
-        { icon: 'walk', label: 'Entrenos', value: stats.workoutsThisWeek, unit: 'esta semana' },
-        { icon: 'barbell', label: 'Distancia', value: stats.totalDistance, unit: 'km totales' },
-        { icon: 'flame', label: 'Calorías', value: stats.caloriesBurned, unit: 'quemadas' },
-        { icon: 'time', label: 'Actividad', value: stats.activeMinutes, unit: 'minutos' }
-      ]">
-        <div class="stat-card">
-          <ion-icon [name]="stat.icon" color="primary"></ion-icon>
-          <h2>{{stat.value}}</h2>
-          <p>{{stat.label}} <span>{{stat.unit}}</span></p>
-        </div>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-
-  <!-- Gráfico de Progreso -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Tu actividad esta semana</ion-card-title>
-    </ion-card-header>
+  <!-- Progreso de Peso Destacado -->
+  <ion-card class="weight-card" *ngIf="currentWeight > 0">
     <ion-card-content>
-      <canvas id="progressChart"></canvas>
+      <div class="weight-header">
+        <div class="weight-info">
+          <h2>{{ currentWeight }} kg</h2>
+          <p>Peso actual</p>
+        </div>
+        <div class="goal-info">
+          <h3>Meta: {{ weightGoal }} kg</h3>
+          <p class="status">{{ getWeightStatus() }}</p>
+        </div>
+      </div>
+      
+      <div class="progress-section">
+        <ion-progress-bar 
+          [value]="getProgressPercentage() / 100" 
+          color="success">
+        </ion-progress-bar>
+        <p class="progress-text">{{ getProgressPercentage().toFixed(0) }}% del objetivo alcanzado</p>
+      </div>
+
+      <ion-button 
+        fill="outline" 
+        size="small" 
+        routerLink="/tabs/progress"
+        class="progress-btn">
+        <ion-icon slot="start" name="trending-up"></ion-icon>
+        Ver mi progreso completo
+      </ion-button>
     </ion-card-content>
   </ion-card>
 
-  <!-- Distribución de entrenos -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Distribución de entrenos</ion-card-title>
-    </ion-card-header>
+  <!-- Card de Progreso Vacía (si no hay datos) -->
+  <ion-card class="empty-weight-card" *ngIf="currentWeight === 0">
     <ion-card-content>
-      <div style="height: 250px">
-        <canvas id="workoutChart"></canvas>
+      <div class="empty-content">
+        <ion-icon name="fitness" size="large" color="medium"></ion-icon>
+        <h3>¡Comienza tu progreso!</h3>
+        <p>Registra tu primer peso para ver tu evolución</p>
+        <ion-button 
+          expand="block" 
+          color="primary" 
+          routerLink="/tabs/progress">
+          <ion-icon slot="start" name="add"></ion-icon>
+          Registrar peso
+        </ion-button>
       </div>
     </ion-card-content>
   </ion-card>
 
-  <!-- Acciones rápidas -->
-  <ion-grid class="quick-actions">
-    <ion-row>
-      <ion-col size="6" *ngFor="let action of [
-        { icon: 'add-circle', label: 'Nuevo Entreno', color: 'primary', route: '/routes' },
-        { icon: 'trophy', label: 'Logros', color: 'success', route: '/achievements' },
-        { icon: 'stats-chart', label: 'Progreso', color: 'warning', route: '/progress' },
-        { icon: 'people', label: 'Comunidad', color: 'tertiary', route: '/community' }
-      ]">
-        <ion-button [routerLink]="action.route" expand="block" [color]="action.color" class="action-button">
-          <ion-icon slot="start" [name]="action.icon"></ion-icon>
-          {{action.label}}
-        </ion-button>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+  <!-- Acciones Rápidas -->
+  <div class="actions-header">
+    <h2>¿Qué quieres hacer hoy?</h2>
+  </div>
+
+  <div class="quick-actions">
+    <div 
+      class="action-item"
+      *ngFor="let action of quickActions"
+      (click)="navigateToAction(action)">
+      <div class="action-icon" [attr.data-color]="action.color">
+        <ion-icon [name]="action.icon"></ion-icon>
+      </div>
+      <div class="action-content">
+        <h4>{{ action.label }}</h4>
+      </div>
+      <ion-icon name="chevron-forward" class="arrow-icon"></ion-icon>
+    </div>
+  </div>
+
+  <!-- Sección de Motivación -->
+  <ion-card class="motivation-card">
+    <ion-card-content>
+      <div class="motivation-content">
+        <ion-icon name="trophy" color="warning" size="large"></ion-icon>
+        <div class="motivation-text">
+          <h3>¡Sigue así!</h3>
+          <p>Cada paso te acerca más a tu objetivo. La constancia es la clave del éxito.</p>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
 </ion-content>

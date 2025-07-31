@@ -1,9 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
-import { RouterModule } from '@angular/router';
-import { Geolocation } from '@capacitor/geolocation';
-import { Chart, registerables } from 'chart.js';
+import { RouterModule, Router } from '@angular/router';
+import { ProgressService, ProgressStats } from 'src/app/services/progress.service';
+
+interface QuickAction {
+  icon: string;
+  label: string;
+  color: string;
+  route: string;
+}
 
 @Component({
   selector: 'app-dashboard',
@@ -12,104 +18,126 @@ import { Chart, registerables } from 'chart.js';
   standalone: true,
   imports: [CommonModule, IonicModule, RouterModule]
 })
-export class DashboardPage {
+export class DashboardPage implements OnInit {
+  motivationalMessage: string = '';
   userName: string = 'Usuario';
-  currentDate: string = new Date().toLocaleDateString('es-ES', { 
-    weekday: 'long', 
-    day: 'numeric', 
-    month: 'long' 
-  });
-  weather: string = 'soleado';
-  currentLocation: string = 'Cargando...';
+  greeting: string = '';
+  currentDate: string = '';
+  currentWeight: number = 0;
+  weightGoal: number = 70;
+  progressStats: ProgressStats = {} as ProgressStats;
   
-  stats = {
-    workoutsThisWeek: 3,
-    totalDistance: 15.6,
-    caloriesBurned: 1240,
-    activeMinutes: 120
-  };
+  quickActions: QuickAction[] = [
+    { 
+      icon: 'fitness', 
+      label: 'Entrenar', 
+      color: 'primary', 
+      route: '/tabs/workouts'
+    },
+    { 
+      icon: 'analytics', 
+      label: 'Mi Progreso', 
+      color: 'success', 
+      route: '/tabs/progress'
+    },
+    { 
+      icon: 'restaurant', 
+      label: 'Nutrición', 
+      color: 'warning', 
+      route: '/tabs/nutrition'
+    },
+    { 
+      icon: 'person', 
+      label: 'Perfil', 
+      color: 'tertiary', 
+      route: '/tabs/profile'
+    }
+  ];
 
-  constructor() {
-    Chart.register(...registerables);
-    this.loadLocation();
+  constructor(
+    private router: Router,
+    private progressService: ProgressService
+  ) {}
+
+  ngOnInit() {
+    this.loadUserData();
+    this.setGreeting();
+    this.updateDateTime();
+    this.loadProgressData();
   }
 
-  ionViewDidEnter() {
-    this.createProgressChart();
-    this.createWorkoutDistributionChart();
+  private loadUserData() {
+    // Obtener nombre del usuario del localStorage o servicio
+    this.userName = localStorage.getItem('userName') || 'Usuario';
+    this.weightGoal = parseFloat(localStorage.getItem('weightGoal') || '70');
   }
 
-  async loadLocation() {
-    try {
-      const position = await Geolocation.getCurrentPosition();
-      // Simulación de obtención de nombre de ubicación
-      this.currentLocation = this.getLocationName(position.coords.latitude, position.coords.longitude);
-    } catch (error) {
-      this.currentLocation = 'Tu ubicación actual';
+  private setGreeting() {
+    const hour = new Date().getHours();
+    if (hour < 12) {
+      this.greeting = 'Buenos días';
+    } else if (hour < 18) {
+      this.greeting = 'Buenas tardes';
+    } else {
+      this.greeting = 'Buenas noches';
     }
   }
 
-  private getLocationName(lat: number, lng: number): string {
-    // Esto es simulado - en una app real usarías una API de geocodificación inversa
-    return 'Quito, Ecuador';
+  private updateDateTime() {
+    this.currentDate = new Date().toLocaleDateString('es-ES', { 
+      weekday: 'long', 
+      day: 'numeric', 
+      month: 'long' 
+    });
   }
 
-  createProgressChart() {
-    const ctx = document.getElementById('progressChart') as HTMLCanvasElement;
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-        datasets: [{
-          label: 'Minutos activos',
-          data: [20, 30, 25, 45, 35, 50, 40],
-          borderColor: '#3880ff',
-          backgroundColor: 'rgba(56, 128, 255, 0.1)',
-          tension: 0.3,
-          fill: true
-        }]
+  private loadProgressData() {
+    this.progressService.getProgressStats().subscribe({
+      next: (data: ProgressStats) => {
+        this.progressStats = data;
+        this.currentWeight = data.currentWeight || 0;
       },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            display: false
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
+      error: (err) => {
+        console.error('Error cargando datos de progreso', err);
+        // Datos de ejemplo si no hay conexión
+        this.currentWeight = 75.5;
       }
     });
   }
 
-  createWorkoutDistributionChart() {
-    const ctx = document.getElementById('workoutChart') as HTMLCanvasElement;
-    new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Cardio', 'Fuerza', 'Flexibilidad'],
-        datasets: [{
-          data: [45, 30, 25],
-          backgroundColor: [
-            '#3880ff',
-            '#3dc2ff',
-            '#2dd36f'
-          ],
-          borderWidth: 0
-        }]
-      },
-      options: {
-        responsive: true,
-        cutout: '70%',
-        plugins: {
-          legend: {
-            position: 'bottom'
-          }
-        }
-      }
-    });
+  navigateToAction(action: QuickAction) {
+    this.router.navigate([action.route]);
+  }
+
+  getProgressPercentage(): number {
+    if (this.weightGoal === 0 || this.currentWeight === 0) return 0;
+    
+    // Calcular progreso basado en diferencia con el objetivo
+    const initialWeight = this.currentWeight + 10; // Asumimos que empezó 10kg más
+    const totalToLose = initialWeight - this.weightGoal;
+    const lostSoFar = initialWeight - this.currentWeight;
+    
+    return Math.min(100, Math.max(0, (lostSoFar / totalToLose) * 100));
+  }
+
+  getWeightStatus(): string {
+    if (this.progressStats.isLosingWeight) {
+      return '¡Vas muy bien! 💪';
+    } else if (this.progressStats.overallTrend === 'stable') {
+      return 'Manteniéndote estable 👍';
+    } else {
+      return '¡Tú puedes! 🚀';
+    }
+  }
+
+  getMotivationalMessage(): string {
+    const messages = [
+      'Cada día es una nueva oportunidad',
+      'Tu esfuerzo vale la pena',
+      'Sigue adelante, vas genial',
+      'La constancia es la clave del éxito',
+      'Hoy es un buen día para entrenar'
+    ];
+    return messages[Math.floor(Math.random() * messages.length)];
   }
 }

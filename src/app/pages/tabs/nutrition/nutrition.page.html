@@ -1,0 +1,283 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="success">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Nutrición</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openAddFoodModal()">
+        <ion-icon name="add" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Fecha actual -->
+  <div class="date-header">
+    <p>{{ currentDate }}</p>
+  </div>
+
+  <!-- Resumen nutricional diario -->
+  <ion-card class="nutrition-summary">
+    <ion-card-header>
+      <ion-card-title>Resumen del día</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <!-- Calorías -->
+      <div class="macro-item">
+        <div class="macro-info">
+          <h3>Calorías</h3>
+          <p>{{ dailyIntake.calories }} / {{ nutritionGoals.calories }} kcal</p>
+          <p class="remaining">Quedan: {{ getRemainingCalories() }} kcal</p>
+        </div>
+        <div class="progress-container">
+          <ion-progress-bar [value]="getCaloriesPercentage() / 100" color="primary"></ion-progress-bar>
+          <span class="percentage">{{ getCaloriesPercentage().toFixed(0) }}%</span>
+        </div>
+      </div>
+
+      <!-- Macronutrientes -->
+      <div class="macros-grid">
+        <div class="macro-card">
+          <h4>Proteína</h4>
+          <p>{{ dailyIntake.protein.toFixed(1) }}g / {{ nutritionGoals.protein }}g</p>
+          <ion-progress-bar [value]="getProteinPercentage() / 100" color="success"></ion-progress-bar>
+          <span class="small-percentage">{{ getProteinPercentage().toFixed(0) }}%</span>
+        </div>
+        
+        <div class="macro-card">
+          <h4>Carbohidratos</h4>
+          <p>{{ dailyIntake.carbs.toFixed(1) }}g / {{ nutritionGoals.carbs }}g</p>
+          <ion-progress-bar [value]="getCarbsPercentage() / 100" color="warning"></ion-progress-bar>
+          <span class="small-percentage">{{ getCarbsPercentage().toFixed(0) }}%</span>
+        </div>
+        
+        <div class="macro-card">
+          <h4>Grasas</h4>
+          <p>{{ dailyIntake.fat.toFixed(1) }}g / {{ nutritionGoals.fat }}g</p>
+          <ion-progress-bar [value]="getFatPercentage() / 100" color="tertiary"></ion-progress-bar>
+          <span class="small-percentage">{{ getFatPercentage().toFixed(0) }}%</span>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Tip nutricional -->
+  <ion-card class="tip-card">
+    <ion-card-content>
+      <div class="tip-content">
+        <ion-icon name="bulb" color="warning"></ion-icon>
+        <p>{{ currentTip }}</p>
+
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Comidas del día -->
+  <div class="meals-section">
+    <!-- Desayuno -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="sunny" color="warning"></ion-icon>
+          Desayuno
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div *ngIf="getMealsByType('breakfast').length === 0" class="empty-meal">
+          <p>Aún no has registrado tu desayuno</p>
+        </div>
+        <ion-list *ngIf="getMealsByType('breakfast').length > 0">
+          <ion-item *ngFor="let meal of getMealsByType('breakfast')">
+            <div class="meal-info">
+              <h4>{{ meal.foodName }}</h4>
+              <p>{{ meal.quantity }}g - {{ meal.calories }} kcal</p>
+              <p class="macros">P: {{ meal.protein }}g | C: {{ meal.carbs }}g | G: {{ meal.fat }}g</p>
+            </div>
+            <ion-button fill="clear" slot="end" (click)="removeMealEntry(meal.id)">
+              <ion-icon name="trash" color="danger"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Almuerzo -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="restaurant" color="success"></ion-icon>
+          Almuerzo
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div *ngIf="getMealsByType('lunch').length === 0" class="empty-meal">
+          <p>Aún no has registrado tu almuerzo</p>
+        </div>
+        <ion-list *ngIf="getMealsByType('lunch').length > 0">
+          <ion-item *ngFor="let meal of getMealsByType('lunch')">
+            <div class="meal-info">
+              <h4>{{ meal.foodName }}</h4>
+              <p>{{ meal.quantity }}g - {{ meal.calories }} kcal</p>
+              <p class="macros">P: {{ meal.protein }}g | C: {{ meal.carbs }}g | G: {{ meal.fat }}g</p>
+            </div>
+            <ion-button fill="clear" slot="end" (click)="removeMealEntry(meal.id)">
+              <ion-icon name="trash" color="danger"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Cena -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="moon" color="dark"></ion-icon>
+          Cena
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div *ngIf="getMealsByType('dinner').length === 0" class="empty-meal">
+          <p>Aún no has registrado tu cena</p>
+        </div>
+        <ion-list *ngIf="getMealsByType('dinner').length > 0">
+          <ion-item *ngFor="let meal of getMealsByType('dinner')">
+            <div class="meal-info">
+              <h4>{{ meal.foodName }}</h4>
+              <p>{{ meal.quantity }}g - {{ meal.calories }} kcal</p>
+              <p class="macros">P: {{ meal.protein }}g | C: {{ meal.carbs }}g | G: {{ meal.fat }}g</p>
+            </div>
+            <ion-button fill="clear" slot="end" (click)="removeMealEntry(meal.id)">
+              <ion-icon name="trash" color="danger"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Snacks -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="nutrition" color="tertiary"></ion-icon>
+          Snacks
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div *ngIf="getMealsByType('snack').length === 0" class="empty-meal">
+          <p>No has registrado snacks</p>
+        </div>
+        <ion-list *ngIf="getMealsByType('snack').length > 0">
+          <ion-item *ngFor="let meal of getMealsByType('snack')">
+            <div class="meal-info">
+              <h4>{{ meal.foodName }}</h4>
+              <p>{{ meal.quantity }}g - {{ meal.calories }} kcal</p>
+              <p class="macros">P: {{ meal.protein }}g | C: {{ meal.carbs }}g | G: {{ meal.fat }}g</p>
+            </div>
+            <ion-button fill="clear" slot="end" (click)="removeMealEntry(meal.id)">
+              <ion-icon name="trash" color="danger"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Modal para agregar comida -->
+  <ion-modal [isOpen]="showAddFoodModal" (didDismiss)="closeAddFoodModal()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Agregar alimento</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeAddFoodModal()">
+              <ion-icon name="close"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      
+      <ion-content>
+        <!-- Selector de tipo de comida -->
+        <ion-item>
+          <ion-select [(ngModel)]="selectedMealType" placeholder="Tipo de comida">
+            <ion-select-option value="breakfast">Desayuno</ion-select-option>
+            <ion-select-option value="lunch">Almuerzo</ion-select-option>
+            <ion-select-option value="dinner">Cena</ion-select-option>
+            <ion-select-option value="snack">Snack</ion-select-option>
+          </ion-select>
+          <ion-label position="stacked">Tipo de comida</ion-label>
+        </ion-item>
+
+        <!-- Buscador de alimentos -->
+        <ion-item>
+          <ion-input 
+            [(ngModel)]="searchTerm" 
+            placeholder="Buscar alimento..."
+            type="search">
+          </ion-input>
+          <ion-label position="stacked">Buscar alimento</ion-label>
+        </ion-item>
+
+        <!-- Lista de alimentos -->
+        <ion-list>
+          <ion-item 
+            *ngFor="let food of getFilteredFoods()" 
+            button 
+            (click)="selectFood(food)"
+            [class.selected]="selectedFood?.id === food.id">
+            <div class="food-item">
+              <h3>{{ food.name }}</h3>
+              <p>{{ food.calories }} kcal por {{ food.portion }}</p>
+              <p>P: {{ food.protein }}g | C: {{ food.carbs }}g | G: {{ food.fat }}g</p>
+            </div>
+            <ion-icon 
+              *ngIf="selectedFood?.id === food.id" 
+              name="checkmark-circle" 
+              color="success" 
+              slot="end">
+            </ion-icon>
+          </ion-item>
+        </ion-list>
+
+        <!-- Cantidad -->
+        <ion-item *ngIf="selectedFood">
+          <ion-input 
+            [(ngModel)]="foodQuantity" 
+            type="number" 
+            min="1" 
+            placeholder="100">
+          </ion-input>
+          <ion-label position="stacked">Cantidad (gramos)</ion-label>
+        </ion-item>
+
+        <!-- Resumen de la selección -->
+        <ion-card *ngIf="selectedFood">
+          <ion-card-header>
+            <ion-card-title>Resumen</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <p><strong>{{ selectedFood.name }}</strong></p>
+            <p>{{ foodQuantity }}g</p>
+            <p>{{ (selectedFood.calories * foodQuantity / 100).toFixed(0) }} kcal</p>
+            <p>P: {{ (selectedFood.protein * foodQuantity / 100).toFixed(1) }}g | 
+               C: {{ (selectedFood.carbs * foodQuantity / 100).toFixed(1) }}g | 
+               G: {{ (selectedFood.fat * foodQuantity / 100).toFixed(1) }}g</p>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Botón agregar -->
+        <ion-button 
+          expand="block" 
+          (click)="addFoodEntry()" 
+          [disabled]="!selectedFood || foodQuantity <= 0"
+          class="add-button">
+          Agregar a {{ getMealTypeLabel(selectedMealType) }}
+        </ion-button>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+</ion-content>

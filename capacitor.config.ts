@@ -5,10 +5,10 @@ const config: CapacitorConfig = {
   appName: 'fittracker-frontend',
   webDir: 'www',
   plugins: {
-  Geolocation: {
-    background: "true"
+    Geolocation: {
+      permissions: ["location"]
+    }
   }
-}
 };
 
 export default config;

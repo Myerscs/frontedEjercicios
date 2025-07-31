@@ -48,24 +48,15 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/tabs/profile/profile.page').then(m => m.ProfilePage)
       },
+      {
+         path: 'nutrition',
+         loadComponent: () =>
+          import('./pages/tabs/nutrition/nutrition.page').then(m => m.NutritionPage)
+         
+      },
       
       // 📋 Rutas de workout dentro de tabs
-      {
-        path: 'create-workout',
-        loadComponent: () =>
-          import('./pages/create-workout/create-workout.page').then(m => m.CreateWorkoutPage)
-      },
-      {
-        path: 'edit-workout/:id',
-        loadComponent: () =>
-          import('./pages/edit-workout/edit-workout.page').then(m => m.EditWorkoutPage)
-      },
-      {
-        path: 'workout-detail/:id',
-        loadComponent: () =>
-          import('./pages/workout-detail/workout-detail.page').then(m => m.WorkoutDetailPage)
-      },
-      
+    
       {
         path: '',
         redirectTo: 'dashboard',
