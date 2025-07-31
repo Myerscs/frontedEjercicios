@@ -235,7 +235,7 @@ export class LoginPage {
   }
 }
 
-  async recoverPassword() {
+ async recoverPassword() {
   const email = await this.emailInput.getInputElement().then(el => el.value);
 
   if (!email || !this.isValidEmail(email)) {

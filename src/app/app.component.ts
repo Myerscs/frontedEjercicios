@@ -3,6 +3,7 @@ import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { App as CapacitorApp } from '@capacitor/app';
+import { provideAuth, getAuth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-root',
@@ -12,7 +13,8 @@ import { App as CapacitorApp } from '@capacitor/app';
 export class AppComponent {
   
   constructor(private router: Router) {
-    // Validar si pasaron más de 60 minutos desde el último uso
+    
+     // Validar si pasaron más de 60 minutos desde el último uso
     const lastUsedAt = localStorage.getItem('lastUsedAt');
     if (lastUsedAt) {
       const diff = Date.now() - parseInt(lastUsedAt, 10);

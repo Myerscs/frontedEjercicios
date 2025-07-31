@@ -59,18 +59,4 @@ export class AuthService {
   loginWithGoogleBackend(idToken: string) {
     return this.http.post(`${API_URL}/google-login`, { idToken });
   }
-   isTokenValid(token: string | null): boolean {
-    if (!token || token.split('.').length !== 3) return false;
-
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const issuedAt = payload.iat; // tiempo en segundos
-      const now = Math.floor(Date.now() / 1000); // actual en segundos
-      const minutesPassed = (now - issuedAt) / 60;
-
-      return minutesPassed < 60; // válido si menos de 60 min
-    } catch (error) {
-      return false;
-    }
-  }
 }
