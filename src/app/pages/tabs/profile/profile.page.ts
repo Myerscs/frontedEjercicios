@@ -143,7 +143,7 @@ export class ProfilePage implements OnInit {
       message: 'Cerrando sesión...',
     });
     await loading.present();
-
+    
     try {
       // Llama al servicio de autenticación para cerrar sesión
       this.authService.logout(); // Tu método logout() ya maneja localStorage y navegación

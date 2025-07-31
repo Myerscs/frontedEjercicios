@@ -17,6 +17,14 @@ export const routes: Routes = [
     canActivate: [noAuthGuard]
   },
   
+{
+  path: 'forgot-password',
+  loadComponent: () =>
+    import('./pages/auth/forgot-password/forgot-password.page').then(
+      (m) => m.ForgotPasswordPage
+    ),
+  canActivate: [noAuthGuard] // opcional, si no quieres que entren usuarios logueados
+}, 
   // 🔐 Rutas protegidas con Tabs y sus hijos
   {
     path: 'tabs',

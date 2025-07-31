@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit ,HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { RouterModule, Router } from '@angular/router';
@@ -60,6 +60,17 @@ export class DashboardPage implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.loadUserData();
+    this.setGreeting();
+    this.updateDateTime();
+    this.loadProgressData();
+  }
+   @HostListener('ionViewDidEnter')
+  onViewDidEnter() {
+    this.loadDashboardData(); // se ejecuta cada vez que se entra al dashboard
+  }
+
+  private loadDashboardData() {
     this.loadUserData();
     this.setGreeting();
     this.updateDateTime();

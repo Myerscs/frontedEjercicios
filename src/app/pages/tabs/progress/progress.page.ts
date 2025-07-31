@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener  } from '@angular/core';
 import { Progress, ProgressService, ProgressWithTrend, ProgressStats } from 'src/app/services/progress.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -28,6 +28,15 @@ export class ProgressPage implements OnInit {
   constructor(private progressService: ProgressService) {}
 
   ngOnInit() {
+    this.loadProgress();
+    this.loadStats();
+    this.loadChartData();
+  }
+  @HostListener('ionViewDidEnter')
+  onIonViewDidEnter() {
+    this.loadAllData(); // Cada vez que se entra a esta vista
+  }
+  private loadAllData() {
     this.loadProgress();
     this.loadStats();
     this.loadChartData();

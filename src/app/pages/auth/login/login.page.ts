@@ -215,25 +215,32 @@ export class LoginPage {
   async loginWithGoogle() {
   try {
     const result = await this.authService.loginWithGoogleFirebase();
-    const user = result.user;
-     // Obtén el token ID de Firebase
-  const idToken = await result.user.getIdToken();
+    const firebaseUser = result.user;
 
-  // Enviar el token al backend para guardar/validar usuario
-  await this.authService.loginWithGoogleBackend(idToken);
-// este token puedes enviarlo a tu backend si quieres validar
+    // 1. Obtener el ID token de Firebase
+    const idToken = await firebaseUser.getIdToken();
 
-    localStorage.setItem('token', idToken);
-    localStorage.setItem('name', user.displayName || '');
-    localStorage.setItem('userId', user.uid);
-
-    this.presentToast(`Bienvenido ${user.displayName}`);
-    this.router.navigate(['/tabs/dashboard']);
+    // 2. Enviar ese token al backend y recibir el JWT propio
+    this.authService.loginWithGoogleBackend(idToken).subscribe({
+      next: (res: any) => {
+        // 3. Guardar el JWT emitido por tu backend
+        this.authService.saveToken(res.token);
+        localStorage.setItem('name', res.name);
+        localStorage.setItem('userId', res.userId);
+        this.presentToast(`Bienvenido ${res.name}`);
+        this.router.navigate(['/tabs/dashboard']);
+      },
+      error: (err) => {
+        console.error('Error en login con Google (backend):', err);
+        this.showErrorAlert('Error con Google', 'No se pudo iniciar sesión con Google');
+      }
+    });
   } catch (error) {
     console.error('Google login error', error);
     this.showErrorAlert('Error con Google', 'No se pudo iniciar sesión con Google');
   }
 }
+
 
  async recoverPassword() {
   const email = await this.emailInput.getInputElement().then(el => el.value);
