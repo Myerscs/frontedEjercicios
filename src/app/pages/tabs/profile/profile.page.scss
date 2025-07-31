@@ -1,77 +1,47 @@
 .profile-container {
-  padding: 16px;
+  padding: 1rem;
   max-width: 600px;
   margin: 0 auto;
 }
 
 .avatar-section {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 2rem;
   
   .avatar-circle {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     background: var(--ion-color-primary);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 12px;
+    margin: 0 auto 1rem;
     
     ion-icon {
       color: white;
-      font-size: 32px;
+      font-size: 3rem;
     }
   }
   
   h2 {
-    margin: 0 0 8px;
-    font-weight: 600;
-  }
-}
-
-ion-card {
-  margin-bottom: 16px;
-  
-  ion-card-title {
-    font-size: 16px;
-    font-weight: 600;
-  }
-  
-  ion-item {
-    --padding-start: 0;
-    
-    ion-label h3 {
-      margin: 0;
-      font-weight: 500;
-      font-size: 14px;
-    }
-    
-    ion-label p {
-      margin: 2px 0 0;
-      color: var(--ion-color-medium);
-      font-size: 13px;
-    }
-    
-    ion-input[readonly] {
-      opacity: 0.6;
-    }
-    
-    ion-note {
-      font-size: 12px;
-    }
+    margin: 0.5rem 0;
+    color: var(--ion-color-dark);
   }
 }
 
 .action-buttons {
-  margin-top: 16px;
+  margin-top: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  
-  ion-button {
-    height: 44px;
-  }
+  gap: 1rem;
+}
+
+// 🔥 Estilos para la sección de logout
+.logout-section {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--ion-color-light);
 }
 
 .loading-container {
@@ -82,11 +52,23 @@ ion-card {
   height: 50vh;
   
   ion-spinner {
-    margin-bottom: 16px;
+    margin-bottom: 1rem;
   }
   
   p {
     color: var(--ion-color-medium);
-    margin: 0;
+  }
+}
+
+// Responsive design
+@media (min-width: 768px) {
+  .action-buttons {
+    flex-direction: row;
+    justify-content: space-between;
+    
+    ion-button {
+      flex: 1;
+      margin: 0 0.5rem;
+    }
   }
 }

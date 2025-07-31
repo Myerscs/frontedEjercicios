@@ -8,6 +8,10 @@
       <ion-button fill="clear" (click)="toggleEdit()" *ngIf="!isEditing">
         <ion-icon name="create-outline"></ion-icon>
       </ion-button>
+      <!-- Botón de cerrar sesión -->
+      <ion-button fill="clear" color="danger" (click)="confirmLogout()" *ngIf="!isEditing">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -105,6 +109,14 @@
           Guardar
         </ion-button>
       </div>
+
+      <!-- Logout Button (alternativa en el contenido) -->
+      <div class="logout-section" *ngIf="!isEditing">
+        <ion-button expand="block" fill="outline" color="danger" (click)="confirmLogout()">
+          <ion-icon name="log-out-outline" slot="start"></ion-icon>
+          Cerrar Sesión
+        </ion-button>
+      </div>
     </form>
   </div>
 
@@ -113,4 +125,4 @@
     <ion-spinner></ion-spinner>
     <p>Cargando...</p>
   </div>
-</ion-content>t>
+</ion-content>

@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { IonicModule, LoadingController, ToastController, AlertController } from '@ionic/angular';
+import { Router } from '@angular/router';
 import { UserService, User, UpdateUserRequest } from 'src/app/services/user.service';
+import { AuthService } from 'src/app/services/auth.service'; // Asume que tienes un AuthService
 
 @Component({
   selector: 'app-profile',
@@ -19,6 +21,8 @@ export class ProfilePage implements OnInit {
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
+    private authService: AuthService,
+    private router: Router,
     private loadingController: LoadingController,
     private toastController: ToastController,
     private alertController: AlertController
@@ -67,38 +71,38 @@ export class ProfilePage implements OnInit {
   }
 
   async saveProfile() {
-  if (this.profileForm.valid) {
-    const loading = await this.loadingController.create({
-      message: 'Actualizando perfil...',
-    });
-    await loading.present();
+    if (this.profileForm.valid) {
+      const loading = await this.loadingController.create({
+        message: 'Actualizando perfil...',
+      });
+      await loading.present();
 
-    const updateData: UpdateUserRequest = {
-      name: this.profileForm.value.name,
-      email: this.profileForm.value.email
-    };
+      const updateData: UpdateUserRequest = {
+        name: this.profileForm.value.name,
+        email: this.profileForm.value.email
+      };
 
-    this.userService.updateUser(updateData).subscribe({
-      next: async (updatedUser: User) => {
-        this.user = updatedUser;
-        this.isEditing = false;
+      this.userService.updateUser(updateData).subscribe({
+        next: async (updatedUser: User) => {
+          this.user = updatedUser;
+          this.isEditing = false;
 
-        // 🔥 Recarga datos del servidor
-        await this.loadUserProfile();
+          // 🔥 Recarga datos del servidor
+          await this.loadUserProfile();
 
-        loading.dismiss();
-        await this.showToast('Perfil actualizado correctamente', 'success');
-      },
-      error: async (error: any) => {
-        loading.dismiss();
-        await this.showToast('Error al actualizar el perfil', 'danger');
-        console.error('Error:', error);
-      }
-    });
-  } else {
-    await this.showToast('Completa todos los campos correctamente', 'warning');
+          loading.dismiss();
+          await this.showToast('Perfil actualizado correctamente', 'success');
+        },
+        error: async (error: any) => {
+          loading.dismiss();
+          await this.showToast('Error al actualizar el perfil', 'danger');
+          console.error('Error:', error);
+        }
+      });
+    } else {
+      await this.showToast('Completa todos los campos correctamente', 'warning');
+    }
   }
-}
 
   async confirmSave() {
     const alert = await this.alertController.create({
@@ -110,6 +114,52 @@ export class ProfilePage implements OnInit {
       ]
     });
     await alert.present();
+  }
+
+  // 🔥 Método para confirmar el logout
+  async confirmLogout() {
+    const alert = await this.alertController.create({
+      header: 'Cerrar Sesión',
+      message: '¿Estás seguro de que deseas cerrar sesión?',
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'secondary'
+        },
+        {
+          text: 'Cerrar Sesión',
+          cssClass: 'danger',
+          handler: () => this.logout()
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  // 🔥 Método para cerrar sesión
+  async logout() {
+    const loading = await this.loadingController.create({
+      message: 'Cerrando sesión...',
+    });
+    await loading.present();
+
+    try {
+      // Llama al servicio de autenticación para cerrar sesión
+      this.authService.logout(); // Tu método logout() ya maneja localStorage y navegación
+      
+      loading.dismiss();
+      
+      // Muestra mensaje de confirmación
+      await this.showToast('Sesión cerrada correctamente', 'success');
+      
+      // No necesitas navegar aquí porque authService.logout() ya lo hace
+      
+    } catch (error) {
+      loading.dismiss();
+      await this.showToast('Error al cerrar sesión', 'danger');
+      console.error('Logout error:', error);
+    }
   }
 
   private async showToast(message: string, color: 'success' | 'danger' | 'warning') {
