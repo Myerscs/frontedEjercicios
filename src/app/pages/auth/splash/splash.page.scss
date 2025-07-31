@@ -1,0 +1,348 @@
+.splash-content {
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.splash-container {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  z-index: 2;
+  transition: all 0.5s ease-out;
+  
+  &.fade-out {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+// 🌟 Background animated elements
+.bg-elements {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  animation: float 6s ease-in-out infinite;
+  
+  &.circle-1 {
+    width: 200px;
+    height: 200px;
+    top: 10%;
+    right: -50px;
+    animation-delay: 0s;
+  }
+  
+  &.circle-2 {
+    width: 150px;
+    height: 150px;
+    bottom: 20%;
+    left: -30px;
+    animation-delay: 2s;
+  }
+  
+  &.circle-3 {
+    width: 100px;
+    height: 100px;
+    top: 60%;
+    right: 20%;
+    animation-delay: 4s;
+  }
+}
+
+.wave {
+  position: absolute;
+  width: 200%;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  animation: wave 8s linear infinite;
+  
+  &.wave-1 {
+    bottom: 0;
+    animation-delay: 0s;
+  }
+  
+  &.wave-2 {
+    bottom: -20px;
+    animation-delay: 1s;
+    opacity: 0.7;
+  }
+}
+
+// 🎯 Main content styling
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  z-index: 3;
+}
+
+// 🚀 Logo section
+.logo-section {
+  margin-bottom: 3rem;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  &.animate-logo {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.logo-container {
+  position: relative;
+  margin-bottom: 1.5rem;
+  display: inline-block;
+}
+
+.main-logo {
+  font-size: 4rem;
+  color: white;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.logo-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+.app-name {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 1px;
+}
+
+.app-tagline {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0.5rem 0 0 0;
+  font-weight: 300;
+}
+
+// 🎨 Features showcase
+.features-showcase {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+
+.feature-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s ease-out;
+  transition-delay: var(--delay, 0s);
+  
+  .features-showcase.animate-features & {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.feature-icon {
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  
+  ion-icon {
+    font-size: 1.8rem;
+    color: white;
+  }
+}
+
+.feature-item span {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+// 🎬 Action section
+.action-section {
+  width: 100%;
+  max-width: 300px;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease-out;
+  transition-delay: 1.2s;
+  
+  &.animate-button {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.get-started-btn {
+  --background: rgba(255, 255, 255, 0.2);
+  --color: white;
+  --border-radius: 25px;
+  --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-weight: 600;
+  height: 55px;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    --background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    --box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.skip-text {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  margin: 0;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: white;
+  }
+}
+
+// 💫 Loading dots
+.loading-dots {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  transition-delay: 1.5s;
+  
+  &.animate-dots {
+    opacity: 1;
+  }
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  animation: loading-dots 1.4s ease-in-out infinite both;
+  
+  &:nth-child(1) { animation-delay: -0.32s; }
+  &:nth-child(2) { animation-delay: -0.16s; }
+  &:nth-child(3) { animation-delay: 0s; }
+}
+
+// 🎭 Animations
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(180deg); }
+}
+
+@keyframes wave {
+  0% { transform: translateX(-50%) rotate(0deg); }
+  100% { transform: translateX(-50%) rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.4);
+    opacity: 0;
+  }
+}
+
+@keyframes loading-dots {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+// 📱 Responsive design
+@media (max-width: 768px) {
+  .app-name {
+    font-size: 2rem;
+  }
+  
+  .main-logo {
+    font-size: 3rem;
+  }
+  
+  .features-showcase {
+    gap: 1.5rem;
+    
+    .feature-icon {
+      width: 50px;
+      height: 50px;
+      
+      ion-icon {
+        font-size: 1.5rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .splash-container {
+    padding: 1rem;
+  }
+  
+  .features-showcase {
+    gap: 1rem;
+  }
+  
+  .feature-item span {
+    font-size: 0.8rem;
+  }
+}

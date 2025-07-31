@@ -1,0 +1,76 @@
+<ion-content [fullscreen]="true" class="splash-content">
+  <div class="splash-container" [class.fade-out]="isExiting">
+    
+    <!-- Background animated elements -->
+    <div class="bg-elements">
+      <div class="circle circle-1"></div>
+      <div class="circle circle-2"></div>
+      <div class="circle circle-3"></div>
+      <div class="wave wave-1"></div>
+      <div class="wave wave-2"></div>
+    </div>
+
+    <!-- Main content -->
+    <div class="content-wrapper">
+      
+      <!-- Logo section -->
+      <div class="logo-section" [class.animate-logo]="showAnimations">
+        <div class="logo-container">
+          <ion-icon name="fitness-outline" class="main-logo"></ion-icon>
+          <div class="logo-pulse"></div>
+        </div>
+        <h1 class="app-name">FitTracker</h1>
+        <p class="app-tagline">Tu entrenador personal</p>
+      </div>
+
+      <!-- Features showcase -->
+      <div class="features-showcase" [class.animate-features]="showAnimations">
+        <div class="feature-item" style="--delay: 0.5s">
+          <div class="feature-icon">
+            <ion-icon name="barbell-outline"></ion-icon>
+          </div>
+          <span>Entrenamientos</span>
+        </div>
+        
+        <div class="feature-item" style="--delay: 0.7s">
+          <div class="feature-icon">
+            <ion-icon name="analytics-outline"></ion-icon>
+          </div>
+          <span>Progreso</span>
+        </div>
+        
+        <div class="feature-item" style="--delay: 0.9s">
+          <div class="feature-icon">
+            <ion-icon name="nutrition-outline"></ion-icon>
+          </div>
+          <span>Nutrición</span>
+        </div>
+      </div>
+
+      <!-- Action button -->
+      <div class="action-section" [class.animate-button]="showAnimations">
+        <ion-button 
+          expand="block" 
+          size="large" 
+          class="get-started-btn"
+          (click)="navigateToLogin()">
+          <ion-icon name="arrow-forward" slot="end"></ion-icon>
+          Comenzar
+        </ion-button>
+        
+        <p class="skip-text" (click)="navigateToLogin()">
+          Toca para continuar
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Loading dots -->
+    <div class="loading-dots" [class.animate-dots]="showAnimations">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+
+  </div>
+</ion-content>

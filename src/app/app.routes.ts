@@ -3,9 +3,15 @@ import { authGuard } from './guards/auth.guard';
 import { noAuthGuard } from './guards/no-auth.guard';
 
 export const routes: Routes = [
-  // 🔓 Rutas públicas
+  // 🌟 Splash/Intro page
   {
     path: '',
+    loadComponent: () =>
+      import('./pages/auth/splash/splash.page').then(m => m.SplashPage)
+  },
+  // 🔓 Rutas públicas
+  {
+    path: 'login',
     loadComponent: () =>
       import('./pages/auth/login/login.page').then(m => m.LoginPage),
     canActivate: [noAuthGuard]
